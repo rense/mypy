@@ -234,7 +234,7 @@ class SemanticAnalyzer(NodeVisitor):
 
     def visit_file(self, file_node: MypyFile, fnam: str, options: Options) -> None:
         self.options = options
-        self.errors.set_file(fnam)
+        self.errors.set_file(fnam, file_node.fullname())
         self.cur_mod_node = file_node
         self.cur_mod_id = file_node.fullname()
         self.is_stub_file = fnam.lower().endswith('.pyi')
@@ -284,7 +284,7 @@ class SemanticAnalyzer(NodeVisitor):
                      active_type: Optional[TypeInfo]) -> Iterator[None]:
         # TODO: Use this above in visit_file
         self.options = options
-        self.errors.set_file(fnam)
+        self.errors.set_file(fnam, file_node.fullname())
         self.cur_mod_node = file_node
         self.cur_mod_id = file_node.fullname()
         self.is_stub_file = fnam.lower().endswith('.pyi')
@@ -3113,7 +3113,7 @@ class FirstPass(NodeVisitor):
         self.pyversion = options.python_version
         self.platform = options.platform
         sem.cur_mod_id = mod_id
-        sem.errors.set_file(fnam)
+        sem.errors.set_file(fnam, mod_id)
         sem.globals = SymbolTable()
         sem.global_decls = [set()]
         sem.nonlocal_decls = [set()]
@@ -3338,7 +3338,7 @@ class ThirdPass(TraverserVisitor):
         self.errors = errors
 
     def visit_file(self, file_node: MypyFile, fnam: str, options: Options) -> None:
-        self.errors.set_file(fnam)
+        self.errors.set_file(fnam, file_node.fullname())
         self.options = options
         self.accept(file_node)
 

@@ -162,7 +162,7 @@ class TypeChecker(StatementVisitor[None]):
 
         Deferred functions will be processed by check_second_pass().
         """
-        self.errors.set_file(self.path)
+        self.errors.set_file(self.path, self.tree.fullname())
         with self.enter_partial_types():
             with self.binder.top_frame_context():
                 for d in self.tree.defs:
@@ -189,7 +189,7 @@ class TypeChecker(StatementVisitor[None]):
         """
         if not todo and not self.deferred_nodes:
             return False
-        self.errors.set_file(self.path)
+        self.errors.set_file(self.path, self.tree.fullname())
         self.pass_num += 1
         if not todo:
             todo = self.deferred_nodes

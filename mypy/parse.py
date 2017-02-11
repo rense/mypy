@@ -148,9 +148,9 @@ class Parser:
         else:
             self.errors = Errors()
         if fnam is not None:
-            self.errors.set_file(fnam)
+            self.errors.set_file(fnam, None)
         else:
-            self.errors.set_file('<input>')
+            self.errors.set_file('<input>', None)
 
     def parse(self, s: Union[str, bytes]) -> MypyFile:
         self.tok, self.ignored_lines = lex.lex(s, pyversion=self.pyversion,
