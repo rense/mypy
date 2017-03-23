@@ -427,7 +427,7 @@ class Argument(Node):
     variable = None  # type: Var
     type_annotation = None  # type: Optional[mypy.types.Type]
     initializer = None  # type: Optional[Expression]
-    kind = None  # type: int
+    kind = None  # type: int  # must be an ARG_* constant
     initialization_statement = None  # type: Optional[AssignmentStmt]
 
     def __init__(self, variable: 'Var', type_annotation: 'Optional[mypy.types.Type]',
@@ -481,6 +481,7 @@ class FuncItem(FuncBase):
     is_overload = False
     is_generator = False   # Contains a yield statement?
     is_coroutine = False   # Defined using 'async def' syntax?
+    is_async_generator = False  # Is an async def generator?
     is_awaitable_coroutine = False  # Decorated with '@{typing,asyncio}.coroutine'?
     is_static = False      # Uses @staticmethod?
     is_class = False       # Uses @classmethod?
@@ -488,8 +489,8 @@ class FuncItem(FuncBase):
     expanded = None  # type: List[FuncItem]
 
     FLAGS = [
-        'is_overload', 'is_generator', 'is_coroutine', 'is_awaitable_coroutine',
-        'is_static', 'is_class',
+        'is_overload', 'is_generator', 'is_coroutine', 'is_async_generator',
+        'is_awaitable_coroutine', 'is_static', 'is_class',
     ]
 
     def __init__(self, arguments: List[Argument], body: 'Block',
@@ -1509,7 +1510,7 @@ class SuperExpr(Expression):
         return visitor.visit_super_expr(self)
 
 
-class FuncExpr(FuncItem, Expression):
+class LambdaExpr(FuncItem, Expression):
     """Lambda expression"""
 
     def name(self) -> str:
@@ -1521,7 +1522,7 @@ class FuncExpr(FuncItem, Expression):
         return ret.expr
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_func_expr(self)
+        return visitor.visit_lambda_expr(self)
 
 
 class ListExpr(Expression):

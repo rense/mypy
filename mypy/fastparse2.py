@@ -28,7 +28,7 @@ from mypy.nodes import (
     TupleExpr, GeneratorExpr, ListComprehension, ListExpr, ConditionalExpr,
     DictExpr, SetExpr, NameExpr, IntExpr, StrExpr, BytesExpr, UnicodeExpr,
     FloatExpr, CallExpr, SuperExpr, MemberExpr, IndexExpr, SliceExpr, OpExpr,
-    UnaryExpr, FuncExpr, ComparisonExpr, DictionaryComprehension,
+    UnaryExpr, LambdaExpr, ComparisonExpr, DictionaryComprehension,
     SetComprehension, ComplexExpr, EllipsisExpr, YieldExpr, Argument,
     Expression, Statement, BackquoteExpr, PrintStmt, ExecStmt,
     ARG_POS, ARG_OPT, ARG_STAR, ARG_NAMED, ARG_STAR2
@@ -326,9 +326,6 @@ class ASTConverter(ast27.NodeTransformer):
 
         for arg, arg_type in zip(args, arg_types):
             self.set_type_optional(arg_type, arg.initializer)
-
-        if isinstance(return_type, UnboundType):
-            return_type.is_ret_type = True
 
         func_type = None
         if any(arg_types) or return_type:
@@ -726,7 +723,7 @@ class ASTConverter(ast27.NodeTransformer):
 
     # Lambda(arguments args, expr body)
     @with_line
-    def visit_Lambda(self, n: ast27.Lambda) -> FuncExpr:
+    def visit_Lambda(self, n: ast27.Lambda) -> LambdaExpr:
         args, decompose_stmts = self.transform_args(n.args, n.lineno)
 
         n_body = ast27.Return(n.body)
@@ -736,7 +733,7 @@ class ASTConverter(ast27.NodeTransformer):
         if decompose_stmts:
             body.body = decompose_stmts + body.body
 
-        return FuncExpr(args, body)
+        return LambdaExpr(args, body)
 
     # IfExp(expr test, expr body, expr orelse)
     @with_line
